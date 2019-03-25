@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's in My Fridge? </title>
+    <link rel="stylesheet" href="css/design.css?v=001">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;lang=en" />
+</head>
+
+
+
+<body>
+    <div class=container>
+            
+
+        <form id="form" action="">
+            <div class="brand">
+                <p1>What's in My Fridge?</p1><br>
+                <p2>Find Recipes Based on the Ingredients You Have on Hand</p2>
+            
+            </div>
+            <span id="Welcome" class="welcome"></span>
+
+            <div class="form-box">
+                <input id="search" type="text" name="search" placeholder="Type the ingredients you have...">
+                <input type="button" onclick="checkForm()" value="Find Recipes">
+
+            </div>
+
+           
+            <div id=result>
+
+
+
+
+            </div>
+        </form>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <script>
+        
+
+        //Change bg image ramdomly
+        /* Start of code from http://stylechen.com/random-bodybg.html */
+        var bodyBgs = [];
+        bodyBgs[0] = "img/img.jpeg";
+        bodyBgs[1] = "img/img1.jpeg";
+        bodyBgs[2] = "img/img2.jpg";
+        bodyBgs[3] = "img/img3.jpeg";
+        bodyBgs[4] = "img/img4.jpeg";
+        bodyBgs[5] = "img/img5.jpeg";
+        bodyBgs[6] = "img/img6.jpeg";
+        bodyBgs[7] = "img/img7.jpeg";
+        bodyBgs[8] = "img/img8.jpeg";
+        bodyBgs[9] = "img/img9.jpeg";
+        bodyBgs[10] = "img/img10.jpeg";
+        bodyBgs[11] = "img/img11.jpeg";
+        bodyBgs[12] = "img/img12.jpeg";
+        bodyBgs[13] = "img/img13.jpeg";
+        bodyBgs[14] = "img/img14.jpeg";
+        bodyBgs[15] = "img/img15.jpeg";
+        bodyBgs[16] = "img/img16.jpeg";
+        bodyBgs[17] = "img/img17.jpeg";
+        bodyBgs[18] = "img/img18.jpeg";
+
+        var randomBgIndex = Math.round(Math.random() * 18);
+
+        document.write('<style>body{background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url(' + bodyBgs[randomBgIndex] + ') no-repeat center center fixed; background-size:cover;}</style>');
+        /* End of code from http://stylechen.com/random-bodybg.html */
+
+
+
+
+        //Greetings based times of the day
+        var today;
+        var today = new Date();
+        console.log(today);
+
+        var hourNow = today.getHours();
+        var greeting;
+
+        if (hourNow >= 18) {
+            greeting = "Good evening! Looking for recipes?";
+        } else if (hourNow >= 12) {
+            greeting = "Good afternoon! What's for dinner tonight?";
+        } else if (hourNow >= 5) {
+            greeting = "Good morning! What do you feel like eating today?";
+        } else {
+            greeting = "Good evening! Looking for recipes?";
+        }
+        var welcomes = document.getElementsByClassName("welcome");
+        for (var i = 0; i < welcomes.length; i++) {
+            welcomes[i].innerHTML = greeting;
+        }
+
+
+
+        //Get the results
+        var resultDiv = document.getElementById("result");
+
+        var httpRequest;
+
+        function makeRequest(url) {
+
+            httpRequest = new XMLHttpRequest();
+
+            if (!httpRequest) {
+                alert('Giving up :( Cannot create an XMLHTTP instance');
+                return false;
+            }
+            httpRequest.onreadystatechange = alertContents;
+            //httpRequest.setRequestHeader('X-RapidAPI-Key', 'd2e802dd28msh565148c744dfa5ep1b6f49jsndb1a6d108617');
+            httpRequest.open('GET', url);
+            httpRequest.setRequestHeader('X-RapidAPI-Key', '24cbfe6522618ec3d776be7e88d21579');
+            httpRequest.send();
+        }
+
+        function alertContents() {
+            if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                if (httpRequest.status === 200) {
+
+                    var result = JSON.parse(httpRequest.responseText);
+
+                    console.log(result);
+
+                    //pull out the data 
+
+                    for (var i = 0, len = result.recipes.length; i < len; i++) {
+
+                        console.log(result.recipes[i].id);
+
+                        
+                    
+                        // Link to recipes
+                        var recipelink = document.createElement('a');
+                        recipelink.setAttribute('href', result.recipes[i].source_url);
+                        resultDiv.appendChild(recipelink);
+
+                        // create <div class="recipe_box"></div>
+                        var recipeBox = document.createElement('div');
+                        recipeBox.setAttribute('class', 'recipe_box');
+
+                        recipelink.appendChild(recipeBox);
+
+                        // create <div class="image"></div>
+                        var imageDiv = document.createElement('div');
+                        imageDiv.setAttribute('class', 'image');
+                        /* Start of code from
+                        https://stackoverflow.com/questions/24419370/javascript-set-background-image-with-size-and-no-repeat-from-random-image-in-fo
+                        */
+                        imageDiv.setAttribute('style', "background-image:url('" + result.recipes[i].image_url + "');");
+                        /* End of code from
+                        https://stackoverflow.com/questions/24419370/javascript-set-background-image-with-size-and-no-repeat-from-random-image-in-fo
+                        */
+                        recipeBox.appendChild(imageDiv);
+
+
+
+                        // create <div class="title"></div>
+                        var titleDiv = document.createElement('p');
+                        titleDiv.setAttribute('class', 'title');
+                        titleDiv.innerHTML = '<div>' + result.recipes[i].title + '</div>';
+                        recipeBox.appendChild(titleDiv);
+                        
+                    }
+
+
+                } else {
+                    alert('There was a problem with the request.');
+                }
+            }
+        }
+
+
+        function checkForm() {
+            var sch = document.getElementById("search").value;
+            sch = sch.replace(/ /g, "+");
+            console.log(sch);
+            //clear the last results
+            resultDiv.innerHTML = "";
+            makeRequest('https://www.food2fork.com/api/search?key=24cbfe6522618ec3d776be7e88d21579&q=' + sch);
+
+        }
+
+    </script>
+</body>
+
+</html>
